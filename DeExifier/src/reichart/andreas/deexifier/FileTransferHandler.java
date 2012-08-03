@@ -33,8 +33,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JComponent;
-import javax.swing.JList;
 import javax.swing.TransferHandler;
 
 /**
@@ -100,7 +98,8 @@ public class FileTransferHandler extends TransferHandler {
 	try {
 	    Object transferredObject = transferable.getTransferData(fileFlavorJpg);
 	  
-	    List<String> list = ((List<String>) transferredObject);
+	    @SuppressWarnings("unchecked")
+	    List<String> list = (List<String>) transferredObject;
 //	    List<String> list = (List<String>) transferable.getTransferData(fileFlavorJpg);
 //	    transferable.
 	    fileStringList = list;

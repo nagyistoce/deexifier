@@ -1,24 +1,19 @@
 /*******************************************************************************
- * Copyright 2012 Andreas Reichart.
- * Distributed under the terms of the GNU General Public License.
+ * Copyright 2012 Andreas Reichart. Distributed under the terms of the GNU General Public License.
  * 
- *     This file is part of DeExifier.
+ * This file is part of DeExifier.
  * 
- *     DeExifier is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
+ * DeExifier is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  * 
- *     DeExifier is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
+ * DeExifier is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
  * 
- *     You should have received a copy of the GNU General Public License
- *     along with DeExifier.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with DeExifier. If not,
+ * see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-
-
 
 /**
  * 
@@ -29,7 +24,6 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -74,51 +68,68 @@ class Resizer {
     }
 
     public byte[] resize(File file, int width, int scaleFactor, float compressionQuality) {
+	// BufferedImage sourceImage = null;
+	// try {
+	// sourceImage = ImageIO.read(file);
+	// } catch (IOException e1) {
+	// e1.printStackTrace();
+	// }
 
 	ImageIcon iIcon = new ImageIcon(file.getAbsolutePath());
-	Image image = iIcon.getImage();
-	int height=0;
+	Image sourceImage = iIcon.getImage();
+
+	// System.out.println(sourceImage.getType());
+	int height = 0;
 	double scalingFactor = 0;
-	if (scaleFactor>0) {
-	    scalingFactor = (double) scaleFactor/(double)100;
-	    width = (int) (image.getWidth(null)*scalingFactor);
-	    height = (int)(image.getHeight(null)*scalingFactor);
+	if (scaleFactor > 0) {
+	    scalingFactor = (double) scaleFactor / (double) 100;
+	    width = (int) (sourceImage.getWidth(null) * scalingFactor);
+	    height = (int) (sourceImage.getHeight(null) * scalingFactor);
 	} else {
-	     height = width*image.getHeight(null)/image.getWidth(null);
-	    scalingFactor = (((double) width) / ((double) image.getWidth(null)));
+	    height = width * sourceImage.getHeight(null) / sourceImage.getWidth(null);
+	    scalingFactor = (((double) width) / ((double) sourceImage.getWidth(null)));
 	}
-	BufferedImage dImage =null;
+	// BufferedImage dImage = null;
 	iWriterParam.setCompressionQuality(compressionQuality);
 
 	AffineTransform transform = new AffineTransform();
+
+	transform.scale(scalingFactor, scalingFactor);
+	int orientation = getOrientation(file);
+	BufferedImage destinationImage;
+	if (orientation == 0) {
+	    destinationImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+	} else if (orientation == 3) {
+	    destinationImage = new BufferedImage(height, width, BufferedImage.TYPE_INT_RGB);
+	    transform.translate(0, sourceImage.getWidth(null));
+	    transform.quadrantRotate(-1);
+	} else if (orientation == 6) {
+	    destinationImage = new BufferedImage(height, width, BufferedImage.TYPE_INT_RGB);
+	    transform.translate(sourceImage.getHeight(null), 0);
+	    transform.rotate(1);
+	} else {
+	    destinationImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+	}
+
 	RenderingHints hints = new RenderingHints(RenderingHints.KEY_INTERPOLATION,
 		RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 	hints.put(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
-	AffineTransformOp transformOp = new AffineTransformOp(transform, hints);
-	transform.scale(scalingFactor, scalingFactor);
-	int orientation = getOrientation(file);
-	if (orientation == 0) {
-	    dImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-	} else if (orientation == 3) {
-	    dImage = new BufferedImage(height, width, BufferedImage.TYPE_INT_RGB);
-	    transform.translate(0, image.getWidth(null));
-	    transform.quadrantRotate(-1);
-	} else if (orientation == 6) {
-	    dImage = new BufferedImage(height, width, BufferedImage.TYPE_INT_RGB);
-	    transform.translate(image.getHeight(null), 0);
-	    transform.rotate(1);
-	} else {
-	    dImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-	}
-	Graphics2D g2 = (Graphics2D) dImage.createGraphics();
 
-	g2.drawImage(image, transform, null);
+	// AffineTransformOp transformOp = new AffineTransformOp(transform, hints);
+	// destinationImage = transformOp.createCompatibleDestImage(sourceImage, destinationImage);
+
+	Graphics2D g2 = (Graphics2D) destinationImage.createGraphics();
+
+	// destinationImage = transformOp.filter(sourceImage, destinationImage);//
+	// g2.drawImage(sourceImage, transformOp, 0, 0);
+
+	g2.drawImage(sourceImage, transform, null);
 
 	ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
 	ImageOutputStream ioutputStream = new MemoryCacheImageOutputStream(baOutputStream);
 
 	iWriter.setOutput(ioutputStream);
-	IIOImage iioImage = new IIOImage(dImage, null, null);
+	IIOImage iioImage = new IIOImage(destinationImage, null, null);
 
 	try {
 	    iWriter.write(null, iioImage, iWriterParam);
@@ -148,21 +159,26 @@ class Resizer {
 	    metadata = Sanselan.getMetadata(file);
 	} catch (ImageReadException | IOException e) {
 	    e.printStackTrace();
+	    // not metadata found: we do not rotate at all: return 0
+	    return 0;
 	}
 
-	ArrayList<ImageMetadata.Item> metadataItems = metadata.getItems();
-	for (ImageMetadata.Item item : metadataItems) {
-	    if (item.getKeyword().equals("Orientation")) {
-		int orientation = Integer.parseInt(item.getText());
-		switch (orientation) {
-		case 3:
-		    return 2;
-		case 8:
-		    return 3;
-		case 6:
-		    return 1;
-		case 1:
-		    return 0;
+	if (metadata != null) {
+	    @SuppressWarnings("unchecked")
+	    ArrayList<ImageMetadata.Item> metadataItems = metadata.getItems();
+	    for (ImageMetadata.Item item : metadataItems) {
+		if (item.getKeyword().equals("Orientation")) {
+		    int orientation = Integer.parseInt(item.getText());
+		    switch (orientation) {
+		    case 3:
+			return 2;
+		    case 8:
+			return 3;
+		    case 6:
+			return 1;
+		    case 1:
+			return 0;
+		    }
 		}
 	    }
 	}

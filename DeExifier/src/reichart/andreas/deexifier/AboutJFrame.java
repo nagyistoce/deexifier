@@ -1,10 +1,8 @@
 package reichart.andreas.deexifier;
 
 import java.awt.Font;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -12,10 +10,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import sun.awt.WindowClosingListener;
-
 public class AboutJFrame extends JFrame {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -6852855001881318538L;
     private JPanel contentPane;
     private static final String copyrightString = "<html><center>Copyright Andreas Reichart, 2012</center><br>"
 	    + "<center>Contains software licensed under the Apache License: Sanselan</center></html>";

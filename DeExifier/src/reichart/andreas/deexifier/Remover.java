@@ -26,7 +26,6 @@
 package reichart.andreas.deexifier;
 
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.List;
@@ -59,12 +58,12 @@ class Remover extends SwingWorker<Void, String> {
     private int compressionQuality;
     private boolean recompress;
     private String additionalSuffix;
-    private JList list;
+//    private JList<String> list;
     private int width;
     private int scalingFactor;
 
     void setParams(File[] fileList, File path, int compressionQuality, boolean recompress, String addSuffix,
-	    JList list, JProgressBar progressBar) {
+	    JList<String> list, JProgressBar progressBar) {
 	this.filelist = fileList;
 	this.path = path;
 	this.listModel = (DefaultListModel<String>) list.getModel();
@@ -72,7 +71,7 @@ class Remover extends SwingWorker<Void, String> {
 	this.recompress = recompress;
 	this.compressionQuality = compressionQuality;
 	this.additionalSuffix = addSuffix;
-	this.list = list;
+//	this.list = list;
 	progressBar.setMinimum(0);
 	progressBar.setMaximum(fileList.length);
 
