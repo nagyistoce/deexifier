@@ -1,24 +1,19 @@
 /*******************************************************************************
- * Copyright 2012 Andreas Reichart.
- * Distributed under the terms of the GNU General Public License.
+ * Copyright 2012 Andreas Reichart. Distributed under the terms of the GNU General Public License.
  * 
- *     This file is part of DeExifier.
+ * This file is part of DeExifier.
  * 
- *     DeExifier is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
+ * DeExifier is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  * 
- *     DeExifier is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
+ * DeExifier is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
  * 
- *     You should have received a copy of the GNU General Public License
- *     along with DeExifier.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with DeExifier. If not,
+ * see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-
-
 
 package reichart.andreas.deexifier;
 
@@ -71,6 +66,7 @@ public class DeExifierGUI extends JFrame {
      * 
      */
     private static final long serialVersionUID = -7527819461571225138L;
+    private static final String VERSION = "Version 1.1";
     private JMenu mnFile;
     private JMenu mnEdit;
     private JButton btnAdd;
@@ -104,6 +100,7 @@ public class DeExifierGUI extends JFrame {
     private JMenuItem mnitemAddFile;
     private JMenuItem mnitemRemoveFile;
     private JMenuItem mnitemProcessFiles;
+    private JMenuItem mnitemAbout;
     private JCheckBox chkBoxRecompress;
     private JTextField txtFieldQuality;
 
@@ -188,6 +185,13 @@ public class DeExifierGUI extends JFrame {
 	mnitemProcessFiles = new JMenuItem("Process Files");
 	mnEdit.add(mnitemProcessFiles);
 	mnitemProcessFiles.addActionListener(menuButtonListener);
+	
+	JMenu mnHelp = new JMenu("Help");
+	menuBar.add(mnHelp);
+	
+	mnitemAbout = new JMenuItem("About DeExifier");
+	mnHelp.add(mnitemAbout);
+	mnitemAbout.addActionListener(menuButtonListener);
 
 	JToolBar toolBar = new JToolBar();
 	toolBar.setDoubleBuffered(true);
@@ -215,6 +219,7 @@ public class DeExifierGUI extends JFrame {
 	btnRemove.setContentAreaFilled(true);
 	btnRemove.setBounds(new Rectangle(0, 0, 0, 50));
 	btnRemove.setBorderPainted(false);
+	btnRemove.addActionListener(menuButtonListener);
 	toolBar.add(btnRemove);
 
 	buttonPlay = new JButton("");
@@ -728,12 +733,25 @@ public class DeExifierGUI extends JFrame {
 	    if (clickedButton.equals(btnPrefs)) {
 		// TODO
 	    }
+	    
+	    if (clickedButton.equals(mnitemAbout)) {
+		AboutJFrame aboutFrame = new AboutJFrame(VERSION);
+		aboutFrame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		aboutFrame.setVisible(true);
+	    }
 
 	    if (clickedButton.equals(btnRemove) || clickedButton.equals(mnitemRemoveFile)) {
-		// TODO
+		if (!list.isSelectionEmpty()) {
+		    int[] selectedIndices = list.getSelectedIndices();
+		    for (int i : selectedIndices) {
+			listModel.remove(i);
+		    }
+		    list.clearSelection();
+		}
 	    }
 	}
 
     };
+    
 
 }
